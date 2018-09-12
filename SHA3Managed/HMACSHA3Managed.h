@@ -1,4 +1,4 @@
-// SHA3Managed.h
+// HMACSHA3Managed.h
 
 #pragma once
 
@@ -6,7 +6,7 @@ using namespace System;
 
 namespace SHA3Managed {
 
-	public ref class SHA3_224
+	public ref class HMACSHA3_224
 	{
 	internal:
 		static const short RATE_BITS = 1152;
@@ -17,11 +17,11 @@ namespace SHA3Managed {
 		static const Byte CAP_WORDS = CAP_BITS / 64; // 64bit words
 		static const Byte DELIMITER = 0x06;
 	public:
-		static array<Byte>^ ComputeHash(array<const Byte>^ input);
+		static array<Byte>^ ComputeHash(array<const Byte>^ key, array<const Byte>^ input);
 		//array<Byte>^ ComputeHash(array<static const Byte>^ input, const int offset, const int length, const int outputByteLen);
 	};
 
-	public ref class SHA3_256
+	public ref class HMACSHA3_256
 	{
 	internal:
 		static const short RATE_BITS = 1088;
@@ -32,11 +32,11 @@ namespace SHA3Managed {
 		static const Byte CAP_WORDS = CAP_BITS / 64; // 64bit words
 		static const Byte DELIMITER = 0x06;
 	public:
-		static array<Byte>^ ComputeHash(array<const Byte>^ input);
+		static array<Byte>^ ComputeHash(array<const Byte>^ key, array<const Byte>^ input);
 		//array<Byte>^ ComputeHash(array<const Byte>^ input, const int offset, const int length, const int outputByteLen);
 	};
 
-	public ref class SHA3_384
+	public ref class HMACSHA3_384
 	{
 	internal:
 		static const short RATE_BITS = 832;
@@ -47,11 +47,11 @@ namespace SHA3Managed {
 		static const Byte CAP_WORDS = CAP_BITS / 64; // 64bit words
 		static const Byte DELIMITER = 0x06;
 	public:
-		static array<Byte>^ ComputeHash(array<const Byte>^ input);
+		static array<Byte>^ ComputeHash(array<const Byte>^ key, array<const Byte>^ input);
 		//array<Byte>^ ComputeHash(array<const Byte>^ input, const int offset, const int length, const int outputByteLen);
 	};
 
-	public ref class SHA3_512
+	public ref class HMACSHA3_512
 	{
 	internal:
 		static const short RATE_BITS = 576;
@@ -62,11 +62,11 @@ namespace SHA3Managed {
 		static const Byte CAP_WORDS = CAP_BITS / 64; // 64bit words
 		static const Byte DELIMITER = 0x06;
 	public:
-		static array<Byte>^ ComputeHash(array<const Byte>^ input);
+		static array<Byte>^ ComputeHash(array<const Byte>^ key, array<const Byte>^ input);
 		//array<Byte>^ ComputeHash(array<const Byte>^ input, const int offset, const int length, const int outputByteLen);
 	};
 
-	public ref class SHAKE128 {
+	/*public ref class HMACSHAKE_128 {
 	internal:
 		static const short RATE_BITS = 1344;
 		static const Byte RATE_BYTES = RATE_BITS / 8;
@@ -76,11 +76,11 @@ namespace SHA3Managed {
 		static const Byte CAP_WORDS = CAP_BITS / 64; // 64bit words
 		static const Byte DELIMITER = 0x1f;
 	public:
-		static array<Byte>^ ComputeHash(array<const Byte>^ input, const int outputByteLen);
+		static array<Byte>^ ComputeHash(array<const Byte>^ key, array<const Byte>^ input, const int outputByteLen);
 		//array<Byte>^ ComputeHash(array<const Byte>^ input, const int offset, const int length, const int outputByteLen);
 	};
 
-	public ref class SHAKE256 {
+	public ref class HMACSHAKE_256 {
 	internal:
 		static const short RATE_BITS = 1088;
 		static const Byte RATE_BYTES = RATE_BITS / 8;
@@ -90,7 +90,12 @@ namespace SHA3Managed {
 		static const Byte CAP_WORDS = CAP_BITS / 64; // 64bit words
 		static const Byte DELIMITER = 0x1f;
 	public:
-		static array<Byte>^ ComputeHash(array<const Byte>^ input, const int outputByteLen);
+		static array<Byte>^ ComputeHash(array<const Byte>^ key, array<const Byte>^ input, const int outputByteLen);
 		//array<Byte>^ ComputeHash(array<const Byte>^ input, const int offset, const int length, const int outputByteLen);
+	}; */ // No tests are given by NIST for these operations, so they are not included
+
+	private ref class HMAC {
+	internal:
+		static array<Byte>^ HMACOperation(array<const Byte>^ key, array<const Byte>^ input, const Byte taglen, const Byte rate, const Byte cap, const Byte delimiter, const int outputlen);
 	};
 }

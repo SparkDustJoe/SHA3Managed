@@ -11,8 +11,11 @@ namespace SHA3Managed.Tester
         public struct TestCase
         {
             public byte[] Input;
+            public byte[] Key;
             public byte[] Result;
         }
+
+        // Pulled from NIST examples
 
         internal TestCase[] _SHA3_224 = new TestCase[2];
         internal TestCase[] _SHA3_256 = new TestCase[2];
@@ -20,18 +23,31 @@ namespace SHA3Managed.Tester
         internal TestCase[] _SHA3_512 = new TestCase[2];
         internal TestCase[] _SHAKE128 = new TestCase[2];
         internal TestCase[] _SHAKE256 = new TestCase[2];
+        internal TestCase[] _HSHA3_224 = new TestCase[4];
+        internal TestCase[] _HSHA3_256 = new TestCase[4];
+        internal TestCase[] _HSHA3_384 = new TestCase[4];
+        internal TestCase[] _HSHA3_512 = new TestCase[4];
+        internal TestCase[] _HSHAKE128 = new TestCase[4];
+        internal TestCase[] _HSHAKE256 = new TestCase[4];
         public TestCase[] SHA3_224 { get { return _SHA3_224; } }
         public TestCase[] SHA3_256 { get { return _SHA3_256; } }
         public TestCase[] SHA3_384 { get { return _SHA3_384; } }
         public TestCase[] SHA3_512 { get { return _SHA3_512; } }
         public TestCase[] SHAKE128 { get { return _SHAKE128; } }
         public TestCase[] SHAKE256 { get { return _SHAKE256; } }
+        public TestCase[] HMACSHA3_224 { get { return _HSHA3_224; } }
+        public TestCase[] HMACSHA3_256 { get { return _HSHA3_256; } }
+        public TestCase[] HMACSHA3_384 { get { return _HSHA3_384; } }
+        public TestCase[] HMACSHA3_512 { get { return _HSHA3_512; } }
+        //public TestCase[] HMACSHAKE128 { get { return _HSHAKE128; } }
+        //public TestCase[] HMACSHAKE256 { get { return _HSHAKE256; } }
 
         public TestCases()
         {
             _SHA3_224[0] = new TestCase
             {
                 Input = new byte[] { }, // empty string
+                Key = null,
                 Result = new byte[] {
                     0x6B, 0x4E, 0x03, 0x42, 0x36, 0x67, 0xDB, 0xB7, 0x3B, 0x6E, 0x15, 0x45, 0x4F, 0x0E, 0xB1, 0xAB,
                     0xD4, 0x59, 0x7F, 0x9A, 0x1B, 0x07, 0x8E, 0x3F, 0x5B, 0x5A, 0x6B, 0xC7
@@ -41,6 +57,7 @@ namespace SHA3Managed.Tester
             _SHA3_224[1] = new TestCase
             {
                 Input = new byte[200], // msg = 1600 bits, defined later
+                Key = null,
                 Result = new byte[] {
                     0x93, 0x76, 0x81, 0x6A, 0xBA, 0x50, 0x3F, 0x72, 0xF9, 0x6C, 0xE7, 0xEB, 0x65, 0xAC, 0x09, 0x5D,
                     0xEE, 0xE3, 0xBE, 0x4B, 0xF9, 0xBB, 0xC2, 0xA1, 0xCB, 0x7E, 0x11, 0xE0
@@ -50,6 +67,7 @@ namespace SHA3Managed.Tester
             _SHA3_256[0] = new TestCase
             {
                 Input = new byte[] { }, // empty string
+                Key = null,
                 Result = new byte[] {
                     0xA7, 0xFF, 0xC6, 0xF8, 0xBF, 0x1E, 0xD7, 0x66, 0x51, 0xC1, 0x47, 0x56, 0xA0, 0x61, 0xD6, 0x62,
                     0xF5, 0x80, 0xFF, 0x4D, 0xE4, 0x3B, 0x49, 0xFA, 0x82, 0xD8, 0x0A, 0x4B, 0x80, 0xF8, 0x43, 0x4A
@@ -59,6 +77,7 @@ namespace SHA3Managed.Tester
             _SHA3_256[1] = new TestCase
             {
                 Input = new byte[200], // msg = 1600 bits, defined later
+                Key = null,
                 Result = new byte[] {
                     0x79, 0xF3, 0x8A, 0xDE, 0xC5, 0xC2, 0x03, 0x07, 0xA9, 0x8E, 0xF7, 0x6E, 0x83, 0x24, 0xAF, 0xBF,
                     0xD4, 0x6C, 0xFD, 0x81, 0xB2, 0x2E, 0x39, 0x73, 0xC6, 0x5F, 0xA1, 0xBD, 0x9D, 0xE3, 0x17, 0x87
@@ -68,6 +87,7 @@ namespace SHA3Managed.Tester
             _SHA3_384[0] = new TestCase
             {
                 Input = new byte[] { }, // empty string
+                Key = null,
                 Result = new byte[] {
                     0x0C, 0x63, 0xA7, 0x5B, 0x84, 0x5E, 0x4F, 0x7D, 0x01, 0x10, 0x7D, 0x85, 0x2E, 0x4C, 0x24, 0x85,
                     0xC5, 0x1A, 0x50, 0xAA, 0xAA, 0x94, 0xFC, 0x61, 0x99, 0x5E, 0x71, 0xBB, 0xEE, 0x98, 0x3A, 0x2A,
@@ -78,6 +98,7 @@ namespace SHA3Managed.Tester
             _SHA3_384[1] = new TestCase
             {
                 Input = new byte[200], // msg = 1600 bits, defined later
+                Key = null,
                 Result = new byte[] {
                     0x18, 0x81, 0xDE, 0x2C, 0xA7, 0xE4, 0x1E, 0xF9, 0x5D, 0xC4, 0x73, 0x2B, 0x8F, 0x5F, 0x00, 0x2B,
                     0x18, 0x9C, 0xC1, 0xE4, 0x2B, 0x74, 0x16, 0x8E, 0xD1, 0x73, 0x26, 0x49, 0xCE, 0x1D, 0xBC, 0xDD,
@@ -88,6 +109,7 @@ namespace SHA3Managed.Tester
             _SHA3_512[0] = new TestCase
             {
                 Input = new byte[] { }, // empty string
+                Key = null,
                 Result = new byte[] {
                     0xA6, 0x9F, 0x73, 0xCC, 0xA2, 0x3A, 0x9A, 0xC5, 0xC8, 0xB5, 0x67, 0xDC, 0x18, 0x5A, 0x75, 0x6E,
                     0x97, 0xC9, 0x82, 0x16, 0x4F, 0xE2, 0x58, 0x59, 0xE0, 0xD1, 0xDC, 0xC1, 0x47, 0x5C, 0x80, 0xA6,
@@ -99,6 +121,7 @@ namespace SHA3Managed.Tester
             _SHA3_512[1] = new TestCase
             {
                 Input = new byte[200], // msg = 1600 bits, defined later
+                Key = null,
                 Result = new byte[] {
                     0xE7, 0x6D, 0xFA, 0xD2, 0x20, 0x84, 0xA8, 0xB1, 0x46, 0x7F, 0xCF, 0x2F, 0xFA, 0x58, 0x36, 0x1B,
                     0xEC, 0x76, 0x28, 0xED, 0xF5, 0xF3, 0xFD, 0xC0, 0xE4, 0x80, 0x5D, 0xC4, 0x8C, 0xAE, 0xEC, 0xA8,
@@ -110,6 +133,7 @@ namespace SHA3Managed.Tester
             _SHAKE128[0] = new TestCase
             {
                 Input = new byte[] { }, // empty string
+                Key = null,
                 Result = new byte[] {
                     0x7F, 0x9C, 0x2B, 0xA4, 0xE8, 0x8F, 0x82, 0x7D, 0x61, 0x60, 0x45, 0x50, 0x76, 0x05, 0x85, 0x3E,
                     0xD7, 0x3B, 0x80, 0x93, 0xF6, 0xEF, 0xBC, 0x88, 0xEB, 0x1A, 0x6E, 0xAC, 0xFA, 0x66, 0xEF, 0x26,
@@ -147,6 +171,7 @@ namespace SHA3Managed.Tester
             _SHAKE128[1] = new TestCase
             {
                 Input = new byte[200], // msg = 1600 bits, defined later
+                Key = null,
                 Result = new byte[] {
                     0x13, 0x1A, 0xB8, 0xD2, 0xB5, 0x94, 0x94, 0x6B, 0x9C, 0x81, 0x33, 0x3F, 0x9B, 0xB6, 0xE0, 0xCE,
                     0x75, 0xC3, 0xB9, 0x31, 0x04, 0xFA, 0x34, 0x69, 0xD3, 0x91, 0x74, 0x57, 0x38, 0x5D, 0xA0, 0x37,
@@ -185,6 +210,7 @@ namespace SHA3Managed.Tester
             _SHAKE256[0] = new TestCase
             {
                 Input = new byte[] { }, // empty string
+                Key = null,
                 Result = new byte[] {
                     0x46, 0xB9, 0xDD, 0x2B, 0x0B, 0xA8, 0x8D, 0x13, 0x23, 0x3B, 0x3F, 0xEB, 0x74, 0x3E, 0xEB, 0x24,
                     0x3F, 0xCD, 0x52, 0xEA, 0x62, 0xB8, 0x1B, 0x82, 0xB5, 0x0C, 0x27, 0x64, 0x6E, 0xD5, 0x76, 0x2F,
@@ -222,6 +248,7 @@ namespace SHA3Managed.Tester
             _SHAKE256[1] = new TestCase
             {
                 Input = new byte[200], // msg = 1600 bits, defined later
+                Key = null,
                 Result = new byte[] { 
                     0xCD, 0x8A, 0x92, 0x0E, 0xD1, 0x41, 0xAA, 0x04, 0x07, 0xA2, 0x2D, 0x59, 0x28, 0x86, 0x52, 0xE9,
                     0xD9, 0xF1, 0xA7, 0xEE, 0x0C, 0x1E, 0x7C, 0x1C, 0xA6, 0x99, 0x42, 0x4D, 0xA8, 0x4A, 0x90, 0x4D,
@@ -259,12 +286,134 @@ namespace SHA3Managed.Tester
 
             for (int i = 0; i < 200; i++)
             {
-                // set the 0 index tests to 200 bytes of 10100011 per the spec 
+                // all "0" index tests are empty arrays
+                // set the "1" index tests to 200 bytes of 10100011 per the spec 
                 // (the spec shows the bits in little-endian "absorb" order, not internal memory order)
                 _SHA3_224[1].Input[i] = _SHA3_256[1].Input[i] = _SHA3_384[1].Input[i] = _SHA3_512[1].Input[i] = 0xA3;
                 _SHAKE128[1].Input[i] = _SHAKE256[1].Input[i] = 0xA3;
             }
+
+            //HMAC TESTS====================================================================================================
+            _HSHA3_224[0] = new TestCase
+            {
+                Input = Encoding.ASCII.GetBytes("Sample message for keylen<blocklen"), Key = new byte[28], // key defined later
+                Result = StringToBytes("332cfd59 347fdb8e 576e7726 0be4aba2 d6dc5311 7b3bfb52 c6d18c04")
+            };
+
+            _HSHA3_224[1] = new TestCase
+            {
+                Input = Encoding.ASCII.GetBytes("Sample message for keylen=blocklen"), Key = new byte[144],// key defined later
+                Result = StringToBytes("d8b733bc f66c644a 12323d56 4e24dcf3 fc75f231 f3b67968 359100c7")
+            };
+
+            _HSHA3_224[2] = new TestCase
+            {
+                Input = Encoding.ASCII.GetBytes("Sample message for keylen>blocklen"), Key = new byte[172], // key defined later
+                Result = StringToBytes("078695ee cc227c63 6ad31d06 3a15dd05 a7e819a6 6ec6d8de 1e193e59")
+            };
+
+            _HSHA3_224[3] = new TestCase
+            {
+                Input = Encoding.ASCII.GetBytes("Sample message for keylen<blocklen, with truncated tag"), Key = new byte[28], // key defined later
+                Result = StringToBytes("8569c54c bb00a9b7 8ff1b391 b0e5")
+            };
+
+            _HSHA3_256[0] = new TestCase
+            {
+                Input = Encoding.ASCII.GetBytes("Sample message for keylen<blocklen"), Key = new byte[32], // key defined later
+                Result = StringToBytes("4fe8e202 c4f058e8 dddc23d8 c34e4673 43e23555 e24fc2f0 25d598f5 58f67205")
+            };
+
+            _HSHA3_256[1] = new TestCase
+            {
+                Input = Encoding.ASCII.GetBytes("Sample message for keylen=blocklen"), Key = new byte[136],// key defined later
+                Result = StringToBytes("68b94e2e 538a9be4 103bebb5 aa016d47 961d4d1a a9060613 13b557f8 af2c3faa")
+            };
+
+            _HSHA3_256[2] = new TestCase
+            {
+                Input = Encoding.ASCII.GetBytes("Sample message for keylen>blocklen"), Key = new byte[168], // key defined later
+                Result = StringToBytes("9bcf2c23 8e235c3c e88404e8 13bd2f3a 97185ac6 f238c63d 6229a00b 07974258")
+            };
+
+            _HSHA3_256[3] = new TestCase
+            {
+                Input = Encoding.ASCII.GetBytes("Sample message for keylen<blocklen, with truncated tag"), Key = new byte[32], // key defined later
+                Result = StringToBytes("c8dc7148 d8c1423a a549105d afdf9cad")
+            };
+
+            _HSHA3_384[0] = new TestCase
+            {
+                Input = Encoding.ASCII.GetBytes("Sample message for keylen<blocklen"), Key = new byte[48], // key defined later
+                Result = StringToBytes("d588a3c5 1f3f2d90 6e8298c1 199aa8ff 62962181 27f6b38a 90b6afe2 c5617725 bc99987f 79b22a55 7b6520db 710b7f42")
+            };
+
+            _HSHA3_384[1] = new TestCase
+            {
+                Input = Encoding.ASCII.GetBytes("Sample message for keylen=blocklen"), Key = new byte[104],// key defined later
+                Result = StringToBytes("a27d24b5 92e8c8cb f6d4ce6f c5bf62d8 fc98bf2d 486640d9 eb8099e2 4047837f 5f3bffbe 92dcce90 b4ed5b1e 7e44fa90")
+            };
+
+            _HSHA3_384[2] = new TestCase
+            {
+                Input = Encoding.ASCII.GetBytes("Sample message for keylen>blocklen"), Key = new byte[152], // key defined later
+                Result = StringToBytes("e5ae4c73 9f455279 368ebf36 d4f5354c 95aa184c 899d3870 e460ebc2 88ef1f94 70053f73 f7c6da2a 71bcaec3 8ce7d6ac")
+            };
+
+            _HSHA3_384[3] = new TestCase
+            {
+                Input = Encoding.ASCII.GetBytes("Sample message for keylen<blocklen, with truncated tag"), Key = new byte[48], // key defined later
+                Result = StringToBytes("25f4bf53 606e91af 79d24a4b b1fd6aec d44414a3 0c8ebb0a")
+            };
+
+            _HSHA3_512[0] = new TestCase
+            {
+                Input = Encoding.ASCII.GetBytes("Sample message for keylen<blocklen"), Key = new byte[64], // key defined later
+                Result = StringToBytes("4efd629d 6c71bf86 162658f2 9943b1c3 08ce27cd fa6db0d9 c3ce8176 3f9cbce5 f7ebe986 8031db1a 8f8eb7b6 b95e5c5e 3f657a89 96c86a2f 6527e307 f0213196")
+            };
+
+            _HSHA3_512[1] = new TestCase
+            {
+                Input = Encoding.ASCII.GetBytes("Sample message for keylen=blocklen"), Key = new byte[72],// key defined later
+                Result = StringToBytes("544e257e a2a3e5ea 19a590e6 a24b724c e6327757 723fe275 1b75bf00 7d80f6b3 60744bf1 b7a88ea5 85f9765b 47911976 d3191cf8 3c039f5f fab0d29c c9d9b6da")
+            };
+
+            _HSHA3_512[2] = new TestCase
+            {
+                Input = Encoding.ASCII.GetBytes("Sample message for keylen>blocklen"), Key = new byte[136], // key defined later
+                Result = StringToBytes("5f464f5e 5b7848e3 885e49b2 c385f069 4985d0e3 8966242d c4a5fe3f ea4b37d4 6b65cece d5dcf594 38dd840b ab22269f 0ba7febd b9fcf746 02a35666 b2a32915")
+            };
+
+            _HSHA3_512[3] = new TestCase
+            {
+                Input = Encoding.ASCII.GetBytes("Sample message for keylen<blocklen, with truncated tag"), Key = new byte[64], // key defined later
+                Result = StringToBytes("7bb06d85 9257b25c e73ca700 df34c5cb ef5c898b ac91029e 0b27975d 4e526a08")
+            };
+
+            byte[] tempHMACkey = new byte[172];
+            for (int i = 0; i < 172; i++)
+            {
+                tempHMACkey[i] = (byte)i; // define the master array, values = index, ascending from 0 to [length - 1]
+            }
+            for (int j = 0; j < 4; j++)
+            {   
+                // fill each key array only to the correct length
+                Buffer.BlockCopy(tempHMACkey, 0, _HSHA3_224[j].Key, 0, _HSHA3_224[j].Key.Length);
+                Buffer.BlockCopy(tempHMACkey, 0, _HSHA3_256[j].Key, 0, _HSHA3_256[j].Key.Length);
+                Buffer.BlockCopy(tempHMACkey, 0, _HSHA3_384[j].Key, 0, _HSHA3_384[j].Key.Length);
+                Buffer.BlockCopy(tempHMACkey, 0, _HSHA3_512[j].Key, 0, _HSHA3_512[j].Key.Length);
+            }
         }
 
+        byte[] StringToBytes(string data)
+        {
+            data = data.Replace(" ", "").Replace("\r", "").Replace("\n", "").Replace("-", "").Trim();
+            byte[] result = new byte[data.Length / 2];
+            for (int i = 0; i < data.Length; i+=2)
+            {
+                result[i / 2] = byte.Parse(data.Substring(i, 2), System.Globalization.NumberStyles.HexNumber | System.Globalization.NumberStyles.AllowHexSpecifier);
+            }
+            return result;
+        }
     }
 }
