@@ -405,7 +405,7 @@ namespace SHA3Managed.Tester
             }
         }
 
-        byte[] StringToBytes(string data)
+        public static byte[] StringToBytes(string data)
         {
             data = data.Replace(" ", "").Replace("\r", "").Replace("\n", "").Replace("-", "").Trim();
             byte[] result = new byte[data.Length / 2];

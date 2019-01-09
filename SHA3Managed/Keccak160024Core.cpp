@@ -84,11 +84,11 @@ namespace SHA3Managed
 			array<UInt64>^ state = gcnew array<UInt64>(25);
 			unsigned int blockSize = 0;
 			unsigned int i;
-			Int64 inputByteLen = input->LongLength;
-			Int64 inputPtr = 0, outputPtr = 0;
+			Int32 inputByteLen = input->Length;
+			Int32 inputPtr = 0, outputPtr = 0;
 			
 			/* === Absorb all the input blocks === */
-			array<UInt64>^ temp = gcnew array<UInt64>(rateBytes / sizeof(UInt64));
+			//array<UInt64>^ temp = gcnew array<UInt64>(rateBytes / sizeof(UInt64)); why was this added?? delete on future updates if not needed
 			while (inputByteLen > 0) {
 				blockSize = MIN(inputByteLen, rateBytes);
 				for (i = 0; i < blockSize; i++)
@@ -108,10 +108,11 @@ namespace SHA3Managed
 			/* === Do the padding and switch to the squeezing phase === */
 
 			/* Absorb the last few bits and add the first bit of padding (which coincides with the delimiter in delimitedSuffix) */
-			Byte padMe = Buffer::GetByte(state, blockSize) ^ delimiter; 
+			Byte padMe;
+			padMe = Buffer::GetByte(state, blockSize) ^ delimiter;
 			Buffer::SetByte(state, blockSize, padMe);
 			/* If the first bit of padding is at position rate-1, we need a whole new block for the second bit of padding */
-			if ((delimiter & 0x80 !=0) && blockSize == (rateBytes - 1))
+			if (((delimiter & 0x80) !=0) && blockSize == (rateBytes - 1))
 				_permute(state);
 			/* Add the second bit of padding */
 			padMe = Buffer::GetByte(state, rateBytes-1) ^ 0x80;

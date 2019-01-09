@@ -12,11 +12,11 @@ using namespace System::Security::Permissions;
 // associated with an assembly.
 //
 [assembly:AssemblyTitleAttribute(L"SHA3Managed")];
-[assembly:AssemblyDescriptionAttribute(L"A C++ (.NET CLR) implementation of FIPS202 SHA3/SHAKE hash and HMACSHA3 algorithms.")];
+[assembly:AssemblyDescriptionAttribute(L"A C++ (.NET CLI) implementation of FIPS202 SHA3/SHAKE hash and HMACSHA3 algorithms.")];
 [assembly:AssemblyConfigurationAttribute(L"")];
 [assembly:AssemblyCompanyAttribute(L"")];
 [assembly:AssemblyProductAttribute(L"SHA3Managed")];
-[assembly:AssemblyCopyrightAttribute(L"Copyright (c) Dustin J Sparks 2017 - 2018")];
+[assembly:AssemblyCopyrightAttribute(L"Copyright (c) Dustin J Sparks 2017 - 2019")];
 [assembly:AssemblyTrademarkAttribute(L"Released into the Public Domain (CC0 License)")];
 [assembly:AssemblyCultureAttribute(L"")];
 

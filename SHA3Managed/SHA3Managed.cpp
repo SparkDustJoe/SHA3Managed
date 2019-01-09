@@ -3,98 +3,161 @@
 #include "SHA3Managed.h"
 #include "HMACSHA3Managed.h"
 #include "Keccak160024Core.cpp"
+#include "HMACSHA3Managed.cpp"
 using namespace System;
+using namespace System::Security::Cryptography;
+
 namespace SHA3Managed
 {
-	array<Byte>^ SHA3_224::ComputeHash(array<const Byte>^ input)
+	// internal class to accomplish all hashing tasks (for static and instance HMACSHA3 methods)
+	
+	void sha3_utils::clear2(array<UInt64>^% state, array<Byte>^% hash)
 	{
-		return SHA3Managed::Keccak160024Core::_keccak(RATE_BYTES, CAP_BYTES, DELIMITER, input, 224 / 8);
-	}
-
-	array<Byte>^ SHA3_256::ComputeHash(array<const Byte>^ input)
-	{
-		return SHA3Managed::Keccak160024Core::_keccak(RATE_BYTES, CAP_BYTES, DELIMITER, input, 256 / 8);
-	}
-
-	array<Byte>^ SHA3_384::ComputeHash(array<const Byte>^ input)
-	{
-		return SHA3Managed::Keccak160024Core::_keccak(RATE_BYTES, CAP_BYTES, DELIMITER, input, 384 / 8);
-	}
-
-	array<Byte>^ SHA3_512::ComputeHash(array<const Byte>^ input)
-	{
-		return SHA3Managed::Keccak160024Core::_keccak(RATE_BYTES, CAP_BYTES, DELIMITER, input, 512 / 8);
-	}
-
-	array<Byte>^ SHAKE128::ComputeHash(array<const Byte>^ input, const int outputByteLen)
-	{
-		return SHA3Managed::Keccak160024Core::_keccak(RATE_BYTES, CAP_BYTES, DELIMITER, input, outputByteLen);
-	}
-
-	array<Byte>^ SHAKE256::ComputeHash(array<const Byte>^ input, const int outputByteLen)
-	{
-		return SHA3Managed::Keccak160024Core::_keccak(RATE_BYTES, CAP_BYTES, DELIMITER, input, outputByteLen);
-	}
-
-	// APPLY RFC 2104 / FIPS-198-1 HMAC TRANSFORMATION USING SHA3/SHAKE
-	array<Byte>^ HMACSHA3_224::ComputeHash(array<const Byte>^ key, array<const Byte>^ input)
-	{
-		return HMAC::HMACOperation(key, input, 224 / 8, RATE_BYTES, CAP_BYTES, DELIMITER, 224 / 8);
-	}
-
-	array<Byte>^ HMACSHA3_256::ComputeHash(array<const Byte>^ key, array<const Byte>^ input)
-	{
-		return HMAC::HMACOperation(key, input, 256 / 8, RATE_BYTES, CAP_BYTES, DELIMITER, 256 / 8);
-	}
-
-	array<Byte>^ HMACSHA3_384::ComputeHash(array<const Byte>^ key, array<const Byte>^ input)
-	{
-		return HMAC::HMACOperation(key, input, 384 / 8, RATE_BYTES, CAP_BYTES, DELIMITER, 384 / 8);
-	}
-
-	array<Byte>^ HMACSHA3_512::ComputeHash(array<const Byte>^ key, array<const Byte>^ input)
-	{
-		return HMAC::HMACOperation(key, input, 512 / 8, RATE_BYTES, CAP_BYTES, DELIMITER, 512 / 8);
-	}
-
-	/*array<Byte>^ HMACSHAKE_128::ComputeHash(array<const Byte>^ key, array<const Byte>^ input, const int outputByteLen)
-	{
-		return HMAC::HMACOperation(key, input, RATE_BYTES, CAP_BYTES, DELIMETER, outputByteLen);
-	}
-
-	array<Byte>^ HMACSHAKE_256::ComputeHash(array<const Byte>^ key, array<const Byte>^ input, const int outputByteLen)
-	{
-		return HMAC::HMACOperation(key, input, RATE_BYTES, CAP_BYTES, DELIMETER, outputByteLen);
-	} */  // no tests are defined for these operations, so they are left out!
-
-	array<Byte>^ HMAC::HMACOperation(array<const Byte>^ key, array<const Byte>^ input, 
-		const Byte taglen, 
-		const Byte rate, const Byte cap, const Byte delimiter, 
-		const int outputlen)
-	{
-		// blocklength = rate
-		array<Byte>^ localKey = (key->Length > rate) ? // is the key too long? yes prehash, no use as is
-			SHA3Managed::Keccak160024Core::_keccak(rate, cap, delimiter, key, taglen) : (array<Byte>^)key;
-		array<Byte>^ hash_input1 = gcnew array<Byte>(rate + input->Length); // per the spec, key is always <= blocklen bytes (pre-hash if > blocklen)
-		array<Byte>^ hash = gcnew array<Byte>(taglen); // the output from the first hash of HMAC
-		array<Byte>^ hash_input2 = gcnew array<Byte>(rate + taglen); // per the spec, key is used again
-		System::Buffer::BlockCopy(localKey, 0, hash_input1, 0, localKey->Length);
-		System::Buffer::BlockCopy(localKey, 0, hash_input2, 0, localKey->Length);
-		if (input != nullptr)
-			System::Buffer::BlockCopy(input, 0, hash_input1, rate, input->Length);
-		for (Byte i = 0; i < rate; i++)
+		if (state == nullptr && hash == nullptr) return; // nothing to do
+		RNGCryptoServiceProvider^ rng = gcnew RNGCryptoServiceProvider();
+		if (hash == nullptr) hash = gcnew array<Byte>(25 * sizeof(UInt64));
+		if (state == nullptr) state = gcnew array<UInt64>(25);
+		rng->GetBytes(hash);
+		array<Byte>^ stuff = gcnew array<Byte>(25);
+		for (int i = 0; i < state->Length; i++)
 		{
-			hash_input1[i] ^= 0x36; // 00110110 IPAD
-			hash_input2[i] ^= 0x5c; // 01011100 OPAD
+			state[i] ^= hash[i % hash->Length] ^ (stuff[i] << 8);
 		}
-		//Diagnostics::Debug::Print("INPUT 1: " + BitConverter::ToString(hash_input1)->Replace("-", ""));
-		hash = SHA3Managed::Keccak160024Core::_keccak(rate, cap, delimiter, (array<const Byte>^)hash_input1, taglen); // first hash
-		//Diagnostics::Debug::Print("FIRST HASH: " + BitConverter::ToString(hash)->Replace("-", ""));
-		System::Buffer::BlockCopy(hash, 0, hash_input2, rate, hash->Length);
-		//Diagnostics::Debug::Print("INPUT 2: " + BitConverter::ToString(hash_input2)->Replace("-", ""));
-		hash = SHA3Managed::Keccak160024Core::_keccak(rate, cap, delimiter, (array<const Byte>^)hash_input2, outputlen); // second hash
-		//TODO wipe intermediary buffers to prevent leaks
-		return hash;
+	}
+
+	void sha3_utils::zero2(array<UInt64>^% state, array<Byte>^% hash)
+	{
+		if (state != nullptr && (state[0] | 1024) >= 1)
+			state = nullptr;
+		if (hash != nullptr && (hash[0] | 127) >= 1)
+			hash = nullptr;
+	}
+	
+	void sha3_utils::clear3(array<UInt64>^% state, array<Byte>^% hash, array<Byte>^% key)
+	{
+		if (state == nullptr && hash == nullptr && key == nullptr) return; // nothing to do
+		RNGCryptoServiceProvider^ rng = gcnew RNGCryptoServiceProvider();
+		if (key == nullptr) key = gcnew array<Byte>(25 * sizeof(UInt64));
+		rng->GetBytes(key);
+		clear2(state, hash);
+	}
+
+	void sha3_utils::zero3(array<UInt64>^% state, array<Byte>^% hash, array<Byte>^% key)
+	{
+		zero2(state, hash);
+		if (key != nullptr && (key[0] | 127) >= 1)
+			key = nullptr;
+	}
+	
+	void sha3_utils::hashCore(array<const Byte>^ data, int index, int length, array<UInt64>^% state, int% statePtr, int rateBytes)
+	{
+		for (int i = 0; i < length; i++)
+		{
+			Byte XORme = Buffer::GetByte(state, statePtr) ^ data[i + index];
+			Buffer::SetByte(state, statePtr++, XORme);
+			if (statePtr >= rateBytes)
+			{
+				statePtr = 0;
+				Keccak160024Core::_permute(state);
+			}
+		}
+	}
+
+	array<Byte>^ sha3_utils::hashFinal(
+		array<const Byte>^ data, int index,	int length,
+		array<UInt64>^% state, int% statePtr,
+		int rateBytes, int capBytes, Byte delimiter,
+		int outputLen)
+	{
+		if (data->Length > 0 && length > 0)
+			hashCore(data, index, length, state, statePtr, rateBytes); // get the last bits			
+
+		// === Do the padding and switch to the squeezing phase ===
+
+		// Absorb the last few bits and add the first bit of padding (which coincides with the delimiter in delimitedSuffix)
+		Byte padMe = Buffer::GetByte(state, statePtr) ^ delimiter;
+		Buffer::SetByte(state, statePtr, padMe);
+		// If the first bit of padding is at position rate-1, we need a whole new block for the second bit of padding
+		// NOTE:  This is the only place where the difference between SHA3, Proposed_SHA3, and SHAKE exists: the padding bit(s)
+		//        in "delimiter", either 0x01 (proposed), 0x06 (sha3), or 0x1f (shake)
+		if (((delimiter & 0x80) != 0) && statePtr == (rateBytes - 1))
+			Keccak160024Core::_permute(state);
+		// Add the second bit of padding 
+		padMe = Buffer::GetByte(state, rateBytes - 1) ^ 0x80;
+		Buffer::SetByte(state, rateBytes - 1, padMe);
+		// === Switch to the squeezing phase === 
+		Keccak160024Core::_permute(state);
+		array<Byte>^ output = gcnew array<Byte>(outputLen);
+		// === Squeeze out all the output blocks === 
+		int outputBytesLeft = outputLen;
+		int outputPtr = 0;
+		int blockSize;
+		while (outputBytesLeft > 0)
+		{
+			blockSize = MIN(outputBytesLeft, rateBytes);
+			Buffer::BlockCopy(state, 0, output, outputPtr, blockSize);
+			outputPtr += blockSize;
+			outputBytesLeft -= blockSize;
+			if (outputBytesLeft > 0)
+				Keccak160024Core::_permute(state);
+		}
+		return output;
+	}
+
+	// new prototype methods
+
+	void SHA3_Prototype::Initialize(int outputHashLengthBits)
+	{
+		if (outputHashLengthBits <= 0 || outputHashLengthBits % 8 != 0 || outputHashLengthBits > TAG_LEN_BITS())
+			throw gcnew ArgumentOutOfRangeException(
+				"outputHashLengthBits", "Output Hash Length, Acceptable values are in the range (0 < h <= " + TAG_LEN_BITS() + "), and a multiple of 8.");
+		this->Clear();
+		_hashSize = outputHashLengthBits;
+		_state = gcnew array<UInt64>(25);
+	}
+
+	void SHA3_Prototype::Clear()
+	{
+		this->_statePTR = 0;
+		this->_canReuse = true;
+		this->_hashSize = TAG_LEN_BITS();
+		System::Threading::Thread::MemoryBarrier();
+		sha3_utils::clear2(_state, _finalHash);
+		sha3_utils::zero2(_state, _finalHash);
+	}
+
+	array<Byte>^ SHA3_Prototype::ComputeHash(array<const Byte>^ input)
+	{
+		return Keccak160024Core::_keccak(RATE_BYTES, CAP_BYTES, DELIMITER(), input, TAG_LEN_BYTES);
+	}
+
+	void SHA3_Prototype::HashCore(array<const Byte>^ data, int index, int length)
+	{
+		if (_canReuse == false)
+			throw gcnew InvalidOperationException("Cannot reuse after HashFinal");
+		if (this->_state == nullptr)
+			throw gcnew InvalidOperationException("Cannot perform hash without initialization.");
+		if (data == nullptr) throw gcnew ArgumentNullException("data");
+		if (data->Length == 0 || length == 0) return; // nothing to do, move along
+		if (index >= data->Length) throw gcnew IndexOutOfRangeException("index");
+		if (index + length > data->Length) throw gcnew ArgumentOutOfRangeException("length");
+
+		sha3_utils::hashCore(data, index, length, _state, _statePTR, RATE_BYTES);
+	}
+
+	array<Byte>^ SHA3_Prototype::HashFinal(array<const Byte>^ data, int index, int length)
+	{
+		if (_canReuse == false)
+			throw gcnew InvalidOperationException("Cannot reuse after HashFinal");
+		if (this->_state == nullptr)
+			throw gcnew InvalidOperationException("Cannot perform hash without initialization.");
+		if (data == nullptr) throw gcnew ArgumentNullException("data");
+		if (index >= data->Length) throw gcnew IndexOutOfRangeException("index");
+		if (index + length > data->Length) throw gcnew ArgumentOutOfRangeException("length");
+
+		_finalHash = sha3_utils::hashFinal(data, index, length, _state, _statePTR, RATE_BYTES, CAP_BYTES, DELIMITER(), _hashSize / 8);
+		_canReuse = false;
+		return _finalHash;
 	}
 
 }
